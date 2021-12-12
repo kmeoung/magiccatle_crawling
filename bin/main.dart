@@ -4,11 +4,12 @@ import 'package:http/http.dart' show get;
 import 'package:csv/csv.dart';
 
 void main() {
-  // getProduct(productId: 1761);
+  getProduct(productId: 1944);
   // getMainPage();
-  for (String key in _brands.keys) {
-    getBrandPage(brand: key, brandCode: _brands[key]!);
-  }
+  // for (String key in _brands.keys) {
+  //   getBrandPage(brand: key, brandCode: _brands[key]!);
+  // }
+  // getBrandPage(brand: '건드', brandCode: 93);
 }
 
 enum PRODUCT_IMG_TYPE { MAIN, BANNER }
