@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ko" lang="ko">
+<head>
+    <title>페이지를 찾을 수 없습니다.</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width" />
+    <link rel="stylesheet" type="text/css" href="//img.cafe24.com/css/warn.css" />
+</head>
+<body id="warn">
+<div id="skipNavigation">
+    <p><a href="#content">컨텐츠 바로가기</a></p>
+</div>
+<hr class="layout" />
+<div id="header">
+    <h1><a href="/"><img src="http://img.cafe24.com/images/common/warn/logo_cafe24.gif" alt="cafe24" /></a></h1>
+</div>
+<hr class="layout" />
+<div id="container">
+    <div id="content">
+        <div class="icoWarn icoNone"><span></span></div>
+        <div class="mWarn">
+            <div class="inner">
+                <h2>요청하신 페이지를<br />찾을 수 없습니다.</h2>
+                <h3>[알림]</h3>
+                <p class="txtDesc center">서비스 이용에 불편을 드려 죄송합니다.<br />잠시 후 다시 접속하시기 바랍니다.<br />시스템 관리자는 <a href="http://nginx.org/en/docs/ngx_core_module.html#error_log" target="_blank">오류 로그</a>에서 자세한 내용을 확인하시기 바랍니다.</p>
+            </div>
+        </div>
+    </div>
+</div>
+<hr class="layout" />
+<div id="footer">
+    Copyright&copy; <strong>Cafe24 Corp. </strong>All Rights Reserved.
+</div>
+</body>
+</html>
+<!-- JP 40x.html -->
