@@ -92,8 +92,6 @@ void getProduct({String brandName = '', required int productId}) async {
       [],
     );
 
-    print(infoTitle.toString() + ' : ' + isSoldOut.toString());
-
     // 메인 이미지 가져오기
     List<Map<String, dynamic>> infoCont = webScraper.getElement(
       'div.infoArea > div.info_wrap > div > div.d_info > ul > li > span.info_cont',
@@ -124,14 +122,13 @@ void getProduct({String brandName = '', required int productId}) async {
         print('$mInfoTitle : $mInfoCont');
       }
     }
+    print('');
 
     _infoData.add(mInfo);
 
     // 메인 이미지
     List<Map<String, dynamic>> mainImg = webScraper
         .getElement('div.prdImgView > p.prdImg > a > img', ['id', 'src']);
-
-    print('메인이미지 URL : https:' + mainImg.single['attributes']['src']);
 
     // 배너 이미지
     List<Map<String, dynamic>> bannerImg = webScraper
@@ -152,8 +149,6 @@ void getProduct({String brandName = '', required int productId}) async {
           ? 'https:$getImgUrl'
           : '$bannerImgUrl$getImgUrl';
     }
-
-    print(bannerImgUrl);
 
     List<String> mInfoDetail = [];
 
