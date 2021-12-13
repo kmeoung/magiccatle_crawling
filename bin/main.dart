@@ -3,18 +3,8 @@ import 'dart:io';
 import 'package:http/http.dart' show get;
 import 'package:csv/csv.dart';
 
-void main() {
-  // getProduct(productId: 2079);
-  // getProduct(productId: 1944);
-
-  // getMainPage();
-  for (String key in _brands.keys) {
-    getBrandPage(brand: key, brandCode: _brands[key]!);
-  }
-  // getBrandPage(brand: '건드', brandCode: 93);
-}
-
 enum PRODUCT_IMG_TYPE { MAIN, BANNER }
+enum RUNNING_TEST { PRODUCT, BRAND, WRITE_TEXT, NONE }
 
 const Map<String, int> _brands = {
   // '매직캐슬': 155,
@@ -31,10 +21,45 @@ const Map<String, int> _brands = {
   // '키두지': 108,
   // '키즈-프리퍼드': 92,
   '스누피': 120,
-  '디즈니': 110,
-  '디즈니-브리또': 112,
-  '디즈니-쇼케이스': 111,
+  // '디즈니': 110,
+  // '디즈니-브리또': 112,
+  // '디즈니-쇼케이스': 111,
 };
+
+void main() {
+  _test(testType: RUNNING_TEST.NONE);
+
+  _getAllBrandPage();
+}
+
+_getAllBrandPage() {
+  for (String key in _brands.keys) {
+    _getBrandPage(brand: key, brandCode: _brands[key]!);
+  }
+}
+
+_test({
+  required RUNNING_TEST testType,
+  int productId = 2079,
+  String brandName = '건드',
+  int brandCode = 93,
+}) {
+  switch (testType) {
+    case RUNNING_TEST.BRAND:
+      // 브랜드 페이지 가져오기 테스트
+      _getBrandPage(brand: brandName, brandCode: brandCode);
+      break;
+    case RUNNING_TEST.PRODUCT:
+      // 상품 가져오기 테스트
+      _getProduct(productId: productId);
+      break;
+    case RUNNING_TEST.WRITE_TEXT:
+      // 정보 텍스트 파일 저장 테스트
+      _writeInfoTXT(productName: 'test', text: 'test\ntest2\n');
+      break;
+    default:
+  }
+}
 
 getMainPage() async {
   const mainUrl = 'https://magiccastle.co.kr/';
@@ -46,7 +71,7 @@ getMainPage() async {
 
 getPopularProducts() async {}
 
-getBrandPage({String brand = '', required int brandCode}) async {
+_getBrandPage({String brand = '', required int brandCode}) async {
   const mainUrl = 'https://magiccastle.co.kr/';
   final webScraper = WebScraper(mainUrl);
   int pageNo = 1;
@@ -65,7 +90,7 @@ getBrandPage({String brand = '', required int brandCode}) async {
       String? allId = product ?? '';
       if (allId.isNotEmpty) {
         String id = allId.split('_')[1];
-        getProduct(brandName: brand, productId: int.parse(id));
+        _getProduct(brandName: brand, productId: int.parse(id));
       }
     }
     pageNo++;
@@ -75,10 +100,10 @@ getBrandPage({String brand = '', required int brandCode}) async {
 /**
  * 상품 정보 가져오기
  */
-void getProduct({String brandName = '', required int productId}) async {
+void _getProduct({String brandName = '', required int productId}) async {
   final webScraper = WebScraper('https://magiccastle.co.kr');
   if (await webScraper.loadWebPage('/product/1/$productId/')) {
-    List<List<dynamic>> _infoData = [];
+    String _InfoTxt = '';
 
     // QuantityUp (품절여부 확인)
     List<String?> isSoldOut = webScraper.getElementAttribute(
@@ -92,15 +117,11 @@ void getProduct({String brandName = '', required int productId}) async {
       [],
     );
 
-    print(infoTitle.toString() + ' : ' + isSoldOut.toString());
-
     // 메인 이미지 가져오기
     List<Map<String, dynamic>> infoCont = webScraper.getElement(
       'div.infoArea > div.info_wrap > div > div.d_info > ul > li > span.info_cont',
       [],
     );
-
-    List<Map<String, String>> mInfo = [];
 
     String product_name = '';
     for (int i = 0; i < infoCont.length; i++) {
@@ -118,71 +139,107 @@ void getProduct({String brandName = '', required int productId}) async {
               ? mInfoCont
               : '[품절]$mInfoCont';
         }
-
-        mInfo.add({mInfoTitle: mInfoCont});
-
+        _InfoTxt += '$mInfoTitle : $mInfoCont\n';
         print('$mInfoTitle : $mInfoCont');
       }
     }
 
-    _infoData.add(mInfo);
+    // todo : 임시 방편
+    print('');
 
     // 메인 이미지
     List<Map<String, dynamic>> mainImg = webScraper
         .getElement('div.prdImgView > p.prdImg > a > img', ['id', 'src']);
 
-    print('메인이미지 URL : https:' + mainImg.single['attributes']['src']);
-
     // 배너 이미지
     List<Map<String, dynamic>> bannerImg = webScraper
         .getElement('div#tab-responsive-1 > div.cont > p > img', ['id', 'src']);
 
-    String bannerImgUrl = 'https://magiccastle.co.kr';
+    String _bannerImgUrl = 'https://magiccastle.co.kr';
 
     if (bannerImg.length < 1) {
       List<Map<String, dynamic>> anotherBannerImg = webScraper.getElement(
           'div#tab-responsive-1 > div.cont > div > img', ['id', 'src']);
       String getImgUrl = anotherBannerImg[0]['attributes']['src'];
-      bannerImgUrl = getImgUrl.contains('//')
-          ? 'https:$getImgUrl'
-          : '$bannerImgUrl$getImgUrl';
+      _bannerImgUrl =
+          (getImgUrl.contains('.co.kr') || getImgUrl.contains('.com'))
+              ? 'https:$getImgUrl'
+              : '$_bannerImgUrl$getImgUrl';
     } else {
       String getImgUrl = bannerImg[0]['attributes']['src'];
-      bannerImgUrl = getImgUrl.contains('//')
-          ? 'https:$getImgUrl'
-          : '$bannerImgUrl$getImgUrl';
+      _bannerImgUrl =
+          (getImgUrl.contains('.co.kr') || getImgUrl.contains('.com'))
+              ? 'https:$getImgUrl'
+              : '$_bannerImgUrl$getImgUrl';
     }
-
-    print(bannerImgUrl);
-
-    List<String> mInfoDetail = [];
 
     List<Map<String, dynamic>> table = webScraper
         .getElement('div#tab-responsive-1 > div.cont > table > tbody > tr', []);
     for (var map in table) {
       String title = map['title'];
-      mInfoDetail.add(title);
+      _InfoTxt += '$title\n';
     }
-    _infoData.add(mInfoDetail);
+
+    String _mainImg = 'https:' + mainImg.single['attributes']['src'];
 
     _downloadImg(
-        img_url: 'https:' + mainImg.single['attributes']['src'],
+        img_url: _mainImg,
         brandName: brandName,
         productName: product_name,
         productImgType: PRODUCT_IMG_TYPE.MAIN);
 
+    _InfoTxt += '메인 이미지 : $_mainImg\n';
+
     _downloadImg(
-        img_url: bannerImgUrl,
+        img_url: _bannerImgUrl,
         brandName: brandName,
         productName: product_name,
         productImgType: PRODUCT_IMG_TYPE.BANNER);
 
-    writeInfoFile(
-        datas: _infoData, productName: product_name, brandName: brandName);
+    _InfoTxt += '배너 이미지 : $_bannerImgUrl\n';
+
+    _writeInfo(text: _InfoTxt, productName: product_name, brandName: brandName);
   }
 }
 
-writeInfoFile(
+_writeInfo(
+    {String brandName = "",
+    required String productName,
+    String text = '',
+    List<List<dynamic>>? datas}) {
+  if (text.isEmpty && datas == null) {
+    return;
+  } else if (text.isNotEmpty) {
+    _writeInfoTXT(productName: productName, text: text, brandName: brandName);
+  } else if (datas != null) {
+    _writeInfoCSV(productName: productName, datas: datas, brandName: brandName);
+  }
+}
+
+_writeInfoTXT({
+  String brandName = "",
+  required String productName,
+  required String text,
+}) async {
+  if (productName.contains('/')) productName = productName.replaceAll('/', '_');
+  productName = productName.trim();
+  productName = productName.replaceAll(RegExp(r"\s+"), '_');
+
+  var directoryPath = 'data';
+  var firstPath =
+      '$directoryPath/' + '${brandName.isNotEmpty ? '$brandName' : ''}';
+  var secondPath = firstPath + '/$productName';
+
+  var filePathAndName = '$secondPath/$productName.txt';
+
+  await Directory(firstPath).create(recursive: true); // <-- 1
+  await Directory(secondPath).create(recursive: true); // <--
+
+  File file2 = new File(filePathAndName); // <-- 2
+  await file2.writeAsString(text);
+}
+
+_writeInfoCSV(
     {String brandName = "",
     required String productName,
     required List<List<dynamic>> datas}) async {
@@ -203,7 +260,7 @@ writeInfoFile(
   String csv = const ListToCsvConverter().convert(datas);
 
   File file2 = new File(filePathAndName); // <-- 2
-  await file2.writeAsString(csv); // <-- 3
+  file2.writeAsStringSync(csv); // <-- 3
 }
 
 /***
@@ -217,18 +274,6 @@ _downloadImg(
   if (productName.contains('/')) productName = productName.replaceAll('/', '_');
   productName = productName.trim();
   productName = productName.replaceAll(RegExp(r"\s+"), '_');
-
-  if (productName.contains(
-          '[E6001283]_디즈니_곰돌이푸와_튜립피그렛_피규어_16cm') ||
-      productName
-          .contains('[E6002187]_디즈니_인형_안고있는_스티치_피규어_9cm') ||
-      productName
-          .contains('[E6006938]_스누피와_우드스톡_피규어_크리스마스_선물') ||
-      productName
-          .contains('[E6007058]_디즈니_미키와_플루토_강아지_피규어_16cm') ||
-      productName.contains('[E6007937]_스누피와_우드스톡_사랑_피규어') ||
-      productName.contains('[E6002188]_디즈니_기타치는_스티치_피규어_9cm'))
-    print('$productName : ' + img_url);
 
   var url = Uri.parse(img_url); // <-- 1
   var response = await get(url); // <--2
