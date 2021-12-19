@@ -1,10 +1,14 @@
+import 'dart:typed_data';
+
 import 'package:web_scraper/web_scraper.dart';
 import 'dart:io';
+import 'package:path/path.dart';
+import 'package:excel/excel.dart';
 import 'package:http/http.dart' show get;
 import 'package:csv/csv.dart';
 
 enum PRODUCT_IMG_TYPE { MAIN, BANNER }
-enum RUNNING_TEST { PRODUCT, BRAND, WRITE_TEXT, NONE }
+enum RUNNING_TEST { PRODUCT, BRAND, WRITE_TEXT, NONE, EXCEL }
 
 const Map<String, int> _brands = {
   // '매직캐슬': 155,
@@ -20,16 +24,16 @@ const Map<String, int> _brands = {
   // '푸쉰': 117,
   // '키두지': 108,
   // '키즈-프리퍼드': 92,
-  '스누피': 120,
+  // '스누피': 120,
   // '디즈니': 110,
-  // '디즈니-브리또': 112,
+  '디즈니-브리또': 112,
   // '디즈니-쇼케이스': 111,
 };
 
 void main() {
-  _test(testType: RUNNING_TEST.NONE);
+  _test(testType: RUNNING_TEST.EXCEL);
 
-  _getAllBrandPage();
+  // _getAllBrandPage();
 }
 
 _getAllBrandPage() {
@@ -57,6 +61,9 @@ _test({
       // 정보 텍스트 파일 저장 테스트
       _writeInfoTXT(productName: 'test', text: 'test\ntest2\n');
       break;
+    case RUNNING_TEST.EXCEL:
+      testExcel();
+      break;
     default:
   }
 }
@@ -67,6 +74,22 @@ getMainPage() async {
   if (await webScraper.loadWebPage('product/list.html?cate_no=155&page=1')) {
     print(webScraper.getAllScripts());
   }
+}
+
+testExcel() {
+  var excel = Excel.createExcel();
+
+  Sheet sheetObject = excel['Sheet1'];
+  var cell =
+      sheetObject.cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1));
+  cell.value = '신상품';
+
+  excel.link('sheetName', sheetObject);
+
+  var fileBytes = excel.save(fileName: 'data/test.xlsx');
+
+  File file2 = new File('data/test.xlsx'); // <-- 2
+  file2.writeAsBytesSync(Uint8List.fromList(fileBytes!)); // <-- 3
 }
 
 getPopularProducts() async {}
