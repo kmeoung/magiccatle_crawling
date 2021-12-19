@@ -166,6 +166,7 @@ void _getProduct({String brandName = '', required int productId}) async {
         print('$mInfoTitle : $mInfoCont');
       }
     }
+    print('');
 
     // todo : 임시 방편
     print('');
@@ -196,6 +197,11 @@ void _getProduct({String brandName = '', required int productId}) async {
               : '$_bannerImgUrl$getImgUrl';
     }
 
+<<<<<<< HEAD
+=======
+    List<String> mInfoDetail = [];
+
+>>>>>>> 264d6de161e1ec18156abb5de02caa4a68cc8e36
     List<Map<String, dynamic>> table = webScraper
         .getElement('div#tab-responsive-1 > div.cont > table > tbody > tr', []);
     for (var map in table) {
